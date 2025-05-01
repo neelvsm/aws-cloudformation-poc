@@ -16,7 +16,8 @@ Upload the `readonly-access.yaml` file to a GitHub repo, and use this format to 
 https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://raw.githubusercontent.com/<your-username>/aws-cloudformation-poc/main/readonly-access.yaml
 ```
 
-Replace `<your-username>` with your GitHub username.
+Replace https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://raw.githubusercontent.com/neelvsm/aws-cloudformation-poc/main/readonly-access.yaml
+ with your GitHub username.
 
 ### 2. Run the Python Script
 
