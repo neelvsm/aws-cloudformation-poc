@@ -1,44 +1,42 @@
 import boto3
 import sys
 
-def fetch_resources(stack_name):
+def fetch_inventory(stack_name):
+    print(f"Fetching resources for stack: {stack_name}")
+    
     cf = boto3.client('cloudformation')
-    try:
-        resources = cf.describe_stack_resources(StackName=stack_name)['StackResources']
-    except Exception as e:
-        print(f"Error fetching resources from stack: {e}")
-        return
+    ec2 = boto3.client('ec2')
+    s3 = boto3.client('s3')
+
+    # Get resources from CloudFormation stack
+    response = cf.describe_stack_resources(StackName=stack_name)
+    resources = response['StackResources']
 
     ec2_ids = []
-    s3_buckets = []
-
+    print("\nResources in stack:")
     for res in resources:
+        print(f"- {res['ResourceType']}: {res['PhysicalResourceId']}")
         if res['ResourceType'] == 'AWS::EC2::Instance':
             ec2_ids.append(res['PhysicalResourceId'])
-        elif res['ResourceType'] == 'AWS::S3::Bucket':
-            s3_buckets.append(res['PhysicalResourceId'])
 
-    print("== EC2 Instances ==")
+    # List EC2 instance details
     if ec2_ids:
-        ec2 = boto3.client('ec2')
-        response = ec2.describe_instances(InstanceIds=ec2_ids)
-        for reservation in response['Reservations']:
-            for instance in reservation['Instances']:
-                print(f"ID: {instance['InstanceId']}, Type: {instance['InstanceType']}, State: {instance['State']['Name']}")
+        print("\nEC2 Instance Info:")
+        instances = ec2.describe_instances(InstanceIds=ec2_ids)
+        for resv in instances['Reservations']:
+            for inst in resv['Instances']:
+                print(f"Instance ID: {inst['InstanceId']}, State: {inst['State']['Name']}, Type: {inst['InstanceType']}")
     else:
         print("No EC2 Instances found.")
 
-    print("\n== S3 Buckets ==")
-    s3 = boto3.client('s3')
-    for bucket in s3_buckets:
-        try:
-            location = s3.get_bucket_location(Bucket=bucket)
-            print(f"Bucket: {bucket}, Region: {location['LocationConstraint']}")
-        except Exception as e:
-            print(f"Error accessing bucket {bucket}: {e}")
+    # List all S3 buckets
+    print("\nS3 Buckets:")
+    buckets = s3.list_buckets()
+    for bucket in buckets['Buckets']:
+        print(f"- {bucket['Name']}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python fetch_inventory.py <stack-name>")
         sys.exit(1)
-    fetch_resources(sys.argv[1])
+    fetch_inventory(sys.argv[1])
