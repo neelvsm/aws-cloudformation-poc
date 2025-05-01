@@ -1,15 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: >
-  This template creates an IAM role with ReadOnly access to AWS resources like EC2, S3, etc.
-  The role can be assumed by EC2 instances.
+Description: CloudFormation Template to create a ReadOnly IAM Role
 
 Resources:
-  ReadOnlyAccessRole:
+  ReadOnlyRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: ReadOnlyAccessRole
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
@@ -17,8 +15,3 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/ReadOnlyAccess
-
-Outputs:
-  RoleName:
-    Description: Name of the IAM Role
-    Value: !Ref ReadOnlyAccessRole
